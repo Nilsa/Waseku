@@ -1,0 +1,23 @@
+1_ARTICULACION
+	INMOVIL = SINARTROSIS
+		1_Sutura o sinostosis
+		1_Gonfosis
+	POCO MOVIL = ANFIARTROSIS
+		1_Sindesmosis
+		Sincondrosis
+		Sinfisis
+	MUY MOVIL = DIARTROSIS
+		Plana
+		Bisagra
+		Condiloidea
+		Pivot o trocoidal
+		Esferoidal
+		Silla de montar
+2_ARTICULACION
+	Sin cavidad sinovial
+		Fibrosa
+			2_Sutura o sinostosis
+			2_Gonfosis
+			2_Sindesmosis
+		Cartilaginosa
+	Con cavidad sinovial

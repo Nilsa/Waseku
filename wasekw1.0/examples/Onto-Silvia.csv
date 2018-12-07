@@ -1,0 +1,61 @@
+!Sistema anuros
+	Neuromastos
+		Individuales
+			Lineas laterales
+			Infraorbital
+			Preorbital
+			Otica
+			Oral
+			Angular
+			Longitudinal oral
+			Supraotica
+			Dorsal
+			Media
+			Ventral
+		Agrupados
+			Regulares
+				Longitudinalmente
+				1_Lineas laterales
+				Transversalmente
+				2_Lineas laterales
+			Irregulares
+				3_Lineas laterales
+	Nervios de la linea lateral
+		Preoticos
+		Anterodorsal
+			Fibras preganglionares
+				Rama oftalmica superficial
+					Ramula otica
+					Ramula labial
+				Rama bucal
+					1_Ramula otica
+					1_Ramula labial
+			Ganglio anterodorsal
+			Fibras anterodorsales postganglionares
+				Raiz anterodorsal
+		Anteroventral
+			1_Fibras preganglionares
+				Rama mandibular externa
+					Ramula oral
+					Ramula Preopercular
+						componente superior
+						componente inferior
+					Ramula angular
+			Ganglio anteroventral
+			Fibras anteroventrales postganglionares
+				Raiz anteroventral
+		Postoticos
+		Supratemporal
+			2_Fibras preganglionares
+				Rama supraotica
+			Ganglio Postotico
+			Fibras supratemporales postganglionares
+				Raiz supratemporal
+		Posterior
+			3_Fibras preganglionares
+				Rama dorsal
+				Rama lateral
+				Rama ventral
+			1_Ganglio Postotico
+			Fibras posteriores postganglionares
+				Raiz posterior

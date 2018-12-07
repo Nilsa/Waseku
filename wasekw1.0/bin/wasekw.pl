@@ -1,0 +1,447 @@
+#! /usr/bin/env perl
+
+###############################################################################
+#                                                                             #
+#    wasekw1.0 is an interactive tool for ontogenic trees construction        #
+#    from hierarchical *csv and *txt files. It was programmed in Perl 5       #
+#    using Tkx::treeview and hash tables as building engines for the trees    # 
+#    set up.                                                                  #
+#                                                                             #
+#    Copyright (C) 2018 Criado-Sutti Emilio and Sarmiento Nilsa,              #
+#    Instituto de Bio y Geociencias del Noroeste Argentino - Instituto de     #
+#    Investigaciones en Energías No Convencionales - CONICET -                #
+#    Universidad Nacional de Salta.                                           #
+#                                                                             #
+#    This program is free software: you can redistribute it and/or modify     #
+#    it under the terms of the GNU General Public License as published by     #
+#    the Free Software Foundation, either version 3 of the License, or        #
+#    (at your option) any later version.                                      #
+#                                                                             #
+#    This program is distributed in the hope that it will be useful,          #
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+#    GNU General Public License for more details.                             #
+#                                                                             #
+#    You should have received a copy of the GNU General Public License        #
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
+#                                                                             #
+#    Version: 1.0                                                             #
+#    Interpreters: Perl >= 5                                                  #
+#    File EXT: *txt, *csv, *json.                                             #
+#    e-mails: criadosutti@uni-potsdam.de,nilsa@ututo.org                      #
+#    ref: https://tkdocs.com/tutorial/                                        #
+#                                                                             #
+###############################################################################
+
+use strict;
+use warnings;
+use lib 'lib';
+use utf8;
+
+use Data::Dumper;
+use Tie::IxHash::Easy;
+use Storable;
+use Tk;
+use Tk::Tree;
+use Tkx;
+use JSON;
+use JSON::Parse;
+use List::MoreUtils ':all';
+
+binmode STDOUT, ":utf8";
+
+our $VERSION = 1.0;
+(my $progname = $0) =~ s/(.+)\.[^.]+$/$1/;
+my $NW_AQUA = Tkx::tk_windowingsystem() eq "aqua";
+
+# Create Main Frame
+my $main = Tkx::widget->new('.');
+$main->g_wm_geometry("300x500");
+$main->configure(-menu => mk_menu($main));
+$main->g_wm_title("WASEKW 1.0");
+
+# Set Icon
+Tkx::package_require("Img");
+my $img = Tkx::image_create_photo(-file => 'logo.png');
+$main->g_wm_iconphoto($img);
+
+# Create Tree
+my $tree = $main->new_ttk__treeview;
+
+# Figure Label
+my $figure = $main->new_toplevel;
+$figure->g_wm_title("WkW Picture");
+$figure->g_wm_geometry("250x300-1+40");
+#$figure->g_wm_resizable(1,1);
+$figure->g_wm_iconphoto($img);
+my $label = $figure->new_ttk__label();
+
+
+# Set Columns
+
+# Global Variables
+my $filename = "";
+my $json_filename = "";
+my $def_filename = "";
+my $figure_path = "";
+my %hash_;
+my @keyring_;
+
+# Structure Constructor
+sub hash_creator{
+    my ($_filename) = @_;
+    my $contents = do { local(@ARGV, $/) = $_filename; <> } or return;
+    my @lines = split '\n', $contents;
+    my @stack;
+    tie my %hash, 'Tie::IxHash::Easy';
+    push @stack, \%hash;
+    foreach(@lines){
+        chomp;
+        s/^(\t*)//;
+        splice @stack, length($1)+1;
+        push @stack, $stack[$#stack]->{$_} = {};
+    }
+    return %hash;
+}
+
+# Tree Printer
+sub tree_printer{
+    my ($_hash, $_parent, $_depth)= @_;
+    foreach my $key (keys %$_hash){
+        my $id_0 = $tree->insert($_parent, $_depth, -id => "$key", -text => "$key");
+        if (ref($_hash->{$key}) eq 'HASH'){
+            $_depth += 1;
+            tree_printer($_hash->{$key}, $id_0, $_depth);
+        }
+    }
+    return;
+}
+
+# Tree Creator
+sub tree_creator{
+    my ($_self, $_name) = @_;
+    my %new_hash = hash_creator($_name);
+    tree_printer(\%new_hash, "", 0);
+    undef %new_hash;
+    return;
+}
+
+# Tree Cleaner
+sub tree_cleaner{
+    if ($filename ne ""){
+        %hash_ = hash_creator($filename);
+    }
+    else {
+        %hash_ = open_tree($json_filename);
+    }
+    foreach (keys %hash_){ $tree->delete($_); }
+    undef %hash_;
+    return;
+}
+
+# Insert Definitions
+sub list_converter{
+    my ($_filename) = @_;
+    open PFILE, '<', $_filename;
+    local $/ = '##';
+    my @paragraph;
+    while (<PFILE>){
+        chomp;
+        s/[\$(\n*)]//;
+        push @paragraph, "$_";
+    }
+    close PFILE;
+    return @paragraph;
+}
+
+sub get_value{
+    my ($_id) = @_;
+    my $value = $tree->item($_id, -value);
+    return $value;
+}
+
+sub get_focused{
+    my $id = $tree->selection();
+    $id =~ s/[\{\$\}]+//gi;
+    return $id;
+}
+
+sub show_def{
+    my $id = $tree->selection();
+    $id =~ s/[\{\$\}]+//gi;
+    my $value = $tree->item($id, -value);
+    Tkx::tk___messageBox(-message => $value, -title => "WkW Info", -icon => "info");
+    return;
+}
+
+sub insert_def{
+    my ($_file_list, $_filename) = @_;
+    my @list = list_converter($_file_list);
+    my %_hash = hash_creator($_filename);
+    nested_hash_read(\%_hash);
+    my @combi = zip6 @keyring_, @list;
+    foreach (@combi){
+        $tree->item($_->[0], -value => $_->[1], -tags => "ttk simple");
+    }
+    undef @keyring_;
+    undef %_hash;
+    undef @list;
+    return;
+}
+
+sub nested_hash_read{
+    my ($_nested_hash) = @_;
+    foreach my $key (keys %$_nested_hash){
+        push @keyring_, $key;
+        if (ref($_nested_hash->{$key}) eq 'HASH'){
+            nested_hash_read($_nested_hash->{$key});
+        }
+    }
+    return;
+}
+
+# Insert Figures
+sub insert_fig{
+    my $dir = './figs';
+    opendir(FDIR, $dir) or die $!;
+    while ( readdir(FDIR) ){
+        next unless ($_ =~ m/\.jpg$/);
+        my @i = split /\./, $_;
+        my $img_i = Tkx::image_create_photo(-file => "./figs/$_");
+        $tree->item($i[0], -image => $img_i);
+    }
+    closedir FDIR;
+    return;
+}
+
+sub add_figure_path{
+    $figure_path = Tkx::tk___chooseDirectory(-parent => $main);
+    return;
+}
+
+sub error_fig_not_found{
+    my ($_name) = @_;
+    Tkx::tk___messageBox(-message => "$_name figure doesn't found", -title => "WkW Error", -icon => "error");
+    return;
+}
+
+sub search_fig{
+    my ($_dir_name, $_id) = @_;
+    my $name;
+    opendir(FDIR, $_dir_name) or die $!;
+    while (readdir(FDIR)){
+        ($name = $_) =~ s/(.+)\.[^.]+$/$1/;
+        if ($name eq $_id) { return $_; }
+        #else { return ""; }
+    }
+    closedir FDIR;
+}
+
+sub error_path_fig{
+    my ($path_dir) = @_;
+    if ($path_dir eq ""){
+        Tkx::tk___messageBox(-message => "You didn't set the figure's path", -title => "WkW Error", -icon => "error");
+        return 0;
+    }
+    else { return 1; }
+}
+
+sub show_fig{
+    my ($path_dir) = @_;
+    if (error_path_fig($path_dir) == 1){
+        my $id = $tree->selection();
+        my $name = search_fig($path_dir, $id);
+        #if ( $name eq "" ) { error_fig_not_found($id); }
+        my $photo = Tkx::image_create_photo(-file => "$path_dir"."/$name");
+        $label->configure(-image => $photo);
+    }
+    return;
+}
+
+# About Button
+sub about{
+    Tkx::tk___messageBox(-message => "wasekw1.0 is an interactive tool for ontogenic trees construction from hierarchical *csv and *txt files. It was programmed in Perl 5 using Tkx::treeview and hash tables as building engines for the trees set up.", -icon => "info");
+}
+
+# Manual Button
+sub manual{
+    system "gedit ./man.txt";
+}
+
+# Check if Item Exists
+sub item_check{
+    my ($_item_name) = @_;
+    my $item = $tree->exist($_item_name);
+    print $item."\n"; 
+}
+
+# Save Tree
+sub save_tree{
+    my ($_filename) = @_;
+    my @name = split(/\//, $_filename);
+    my @name_i = split(/\./, pop @name);
+    my %new_hash = hash_creator($_filename);
+    open my $fh, ">", $name_i[0]."\.json";
+    print $fh encode_json(\%new_hash);
+    close $fh;
+    return;
+}
+
+# Open Saved JSON Tree
+sub open_tree{
+    my ($_json_file) = @_;
+    open my $PFILE, "<", $_json_file;
+    my $json = <$PFILE>;
+    my $data = decode_json($json);
+    close $PFILE;
+    return %$data;
+}
+
+# Insert Hash to Tree
+sub hash_to_tree{
+    my ($_hash) = @_;
+    tree_printer(\%$_hash, "", 0);
+    return;
+}
+
+# Hash to Tree
+sub h_t_t{
+    $json_filename = Tkx::tk___getOpenFile(-parent => $main); 
+    my %old_hash = open_tree($json_filename); 
+    hash_to_tree(\%old_hash);
+    return;
+}
+
+# Menu Maker
+sub mk_menu {
+    my $main = shift;
+    my $menu = $main->new_menu;
+
+    my $file = $menu->new_menu(
+        -tearoff => 0,
+    );
+    my $trees = $menu->new_menu(
+        -tearoff => 0,
+    );
+    my $widgets = $menu->new_menu(
+        -tearoff => 0,
+    );
+    my $show = $menu->new_menu(
+        -tearoff => 0,
+    );
+    $menu->add_cascade(
+        -label => "File",
+        -underline => 0,
+        -menu => $file,
+    );
+    $menu->add_cascade(
+        -label => "Trees",
+        -underline => 0,
+        -menu => $trees,
+    );
+    $file->add_command(
+        -label => "Open File",
+        -underline => 0,
+        -command => sub { $filename = Tkx::tk___getOpenFile(-parent => $main) },
+    );
+    $file->add_command(
+        -label => "Exit",
+        -underline => 1,
+        -command => [\&Tkx::destroy, $main],
+    ) unless $NW_AQUA;
+
+    my $help = $menu->new_menu(
+        -name => "help",
+        -tearoff => 0,
+    );
+    $trees->add_command(
+        -label => "Create New Tree",
+        -underline => 0,
+        -accelerator => "Ctrl+N",
+        -command => sub { tree_creator($main, $filename) },
+    );
+    $trees->add_command(
+        -label => "Save Tree",
+        -underline => 1,
+        -accelerator => "Ctrl+S",
+        -command => sub { save_tree($filename) },
+    );
+    $trees->add_command(
+        -label => "Open Tree",
+        -underline => 2,
+        -accelerator => "Ctrl+O",
+        -command => sub { h_t_t() },
+    );
+    $trees->add_command(
+        -label => "Clean Tree",
+        -underline => 3,
+        -accelerator => "Ctrl+C",
+        -command => sub { tree_cleaner() },
+    );
+    $trees->add_command(
+        -label => "Print ID",
+        -underline => 4,
+        -command => sub { print get_focused()."\n" },
+    );
+    $menu->add_cascade(
+        -label => "Widgets",
+        -underline => 0,
+        -menu => $widgets,
+    );
+    $widgets->add_command(
+        -label => "Add Definition",
+        -underline => 0,
+        -command => sub { $def_filename = Tkx::tk___getOpenFile(-parent => $main); insert_def($def_filename, $filename) },
+    );
+    $widgets->add_command(
+        -label => "Add Figures Path",
+        -underline => 1,
+        -command => sub { add_figure_path() },
+    );
+    $menu->add_cascade(
+        -label => "Show",
+        -underline => 0,
+        -menu => $show,
+    );
+    $show->add_command(
+        -label => "Show Figure",
+        -underline => 0,
+        -command => sub { show_fig($figure_path) },
+    );
+    $menu->add_cascade(
+        -label => "Help",
+        -underline => 0,
+        -menu => $help,
+    );
+    $help->add_command(
+        -label => "\u$progname Manual",
+        -command => sub { manual() },
+    );
+        
+    my $about_menu = $help;
+    if ($NW_AQUA) {
+        $about_menu = $menu->new_menu(
+            -name => "camel",
+        );
+        $menu->add_cascade(
+            -menu => $about_menu,
+        );
+     }
+     $about_menu->add_command(
+         -label => "About \u$progname",
+         -command => sub { about() },
+     );
+     
+     return $menu;
+}
+
+sub main{
+    $label->g_pack();
+    $label->g_raise();
+    $tree->tag_bind("ttk", "<Alt-1>", sub{ show_def() });
+    #$tree->bind("<Tab-1>", sub{ show_fig($figure_path) });
+    $tree->g_pack(-expand => 1, -fill => 'both');
+    Tkx::MainLoop();
+}
+
+main();
