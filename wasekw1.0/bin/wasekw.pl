@@ -1,5 +1,5 @@
 #! /usr/bin/env perl
-#
+
 ###############################################################################
 #                                                                             #
 #    wasekw1.0 is an interactive tool for ontogenic trees construction        #
@@ -7,9 +7,8 @@
 #    using Tkx::treeview and hash tables as building engines for the trees    # 
 #    set up.                                                                  #
 #                                                                             #
-#    Copyright (C) 2018 Criado-Sutti Emilio and Sarmiento Nilsa,              #
-#    Instituto de Bio y Geociencias del Noroeste Argentino - Instituto de     #
-#    Investigaciones en Energías No Convencionales - CONICET -                #
+#    Copyright (C) 2018 Criado-Sutti. Emilio and Sarmiento. Nilsa,            #
+#    Facultad de Ciencias Exactas, Departamento de Fisica,                    #
 #    Universidad Nacional de Salta.                                           #
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -28,7 +27,7 @@
 #    Version: 1.0                                                             #
 #    Interpreters: Perl >= 5                                                  #
 #    File EXT: *txt, *csv, *json.                                             #
-#    e-mails: criadosutti@uni-potsdam.de,nilsa@ututo.org                      #
+#    e-mail: criadosutti@uni-potsdam.de,nilsa@ututo.org                       #
 #    ref: https://tkdocs.com/tutorial/                                        #
 #                                                                             #
 ###############################################################################
@@ -60,7 +59,7 @@ $main->g_wm_geometry("300x500");
 $main->configure(-menu => mk_menu($main));
 $main->g_wm_title("WASEKW 1.0");
 
-# Set Icon
+# Setting Icon
 Tkx::package_require("Img");
 my $img = Tkx::image_create_photo(-file => 'logo.png');
 $main->g_wm_iconphoto($img);
@@ -77,7 +76,7 @@ $figure->g_wm_iconphoto($img);
 my $label = $figure->new_ttk__label();
 
 
-# Set Columns
+# Setting Columns
 
 # Global Variables
 my $filename = "";
@@ -257,6 +256,11 @@ sub show_fig{
     }
     return;
 }
+
+# Add Node
+#sub add_node{
+#    my ($id) = @_;
+    
 
 # About Button
 sub about{
