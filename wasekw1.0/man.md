@@ -20,7 +20,7 @@ to wasekw1.0/installers and run
 
 #1.1.2 Windows 64
 
-If you don't have Perl installed already, open a M-DOS pompt and run
+If you don't have Perl installed already, open a MS-DOS pompt and run
 
 :\> ppm install active-perl
 
