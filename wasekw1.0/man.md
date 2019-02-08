@@ -1,4 +1,4 @@
-######################### waseku-core Manual #########################
+######################### waseku 1.0 - Manual #########################
 
 #0.0 Introduction
 
@@ -13,16 +13,20 @@ set up.
 
 #1.1.1 Linux 64
 
-Linux/Unix users can compile the wasekw.pl in the wasekw-main folder.
+Open a terminal pompt. Log as superuser. Dive trought wasekw folders
+to wasekw1.0/installers and run
 
-pp -o wasekw wasekw.pl
-
-* if not pp installed, run:
-* sudo apt-get install libpar-packer-perl
+~/$ perl install_linux64.pl
 
 #1.1.2 Windows 64
 
-Windows users can run directly the wasekw executable frog-icon.
+If you don't have Perl installed already, open a M-DOS pompt and run
+
+:\> ppm install active-perl
+
+then run
+
+:\> perl install_windows64.pl
 
 #2.0 Constrcuting the *csv files
 
