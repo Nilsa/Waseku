@@ -68,13 +68,26 @@ $main->g_wm_iconphoto($img);
 my $tree = $main->new_ttk__treeview;
 
 # Figure Label
-my $figure = $main->new_toplevel;
-$figure->g_wm_title("WkW Picture");
-$figure->g_wm_geometry("250x300-1+40");
-#$figure->g_wm_resizable(1,1);
-$figure->g_wm_iconphoto($img);
-my $label = $figure->new_ttk__label();
+sub figure_menu{
+    my ($main, $figure_path) = @_;
+    my $figure = $main->new_toplevel;
+    $figure->g_wm_title("WkW Picture");
+    $figure->g_wm_geometry("250x300+450+125");
+    #$figure->g_wm_resizable(1,1);
+    $figure->g_wm_iconphoto($img);
+    show_fig($figure, $figure_path);
+}
 
+# Mash Menu
+sub mash_menu{
+    my ($main) = @_;
+    my $mash = $main->new_toplevel;
+    $mash->g_wm_title("WKW Mash");
+    $mash->g_wm_geometry("400x200+450+457");
+    $mash->g_wm_iconphoto($img);
+    my $frm = $mash->new_ttk__frame();
+    my $brs0 = $frm->new_ttk__button(-text => "browse T_1", -command => sub {});
+}
 
 # Setting Columns
 
@@ -190,13 +203,15 @@ sub insert_def{
 
 sub nested_hash_read{
     my ($_nested_hash) = @_;
+    my @key_list;
     foreach my $key (keys %$_nested_hash){
         push @keyring_, $key;
         if (ref($_nested_hash->{$key}) eq 'HASH'){
             nested_hash_read($_nested_hash->{$key});
         }
     }
-    return;
+    @key_list = @keyring_;
+    return @key_list;
 }
 
 # Insert Figures
@@ -245,8 +260,9 @@ sub error_path_fig{
     else { return 1; }
 }
 
-sub show_fig{
-    my ($path_dir) = @_;
+sub show_fig{	
+    my ($figure, $path_dir) = @_;
+    my $label = $figure->new_ttk__label();
     if (error_path_fig($path_dir) == 1){
         my $id = $tree->selection();
         my $name = search_fig($path_dir, $id);
@@ -254,13 +270,19 @@ sub show_fig{
         my $photo = Tkx::image_create_photo(-file => "$path_dir"."/$name");
         $label->configure(-image => $photo);
     }
+    $label->g_pack();
+    $label->g_raise();
     return;
+}
+
+sub show_fig_bind{
+    my ($main, $figure_path) = @_;
+    $main->g_bind("<Shift-1>", sub {figure_menu($main, $figure_path);});
 }
 
 # Add Node
 #sub add_node{
 #    my ($id) = @_;
-    
 
 # About Button
 sub about{
@@ -269,7 +291,7 @@ sub about{
 
 # Manual Button
 sub manual{
-    system "gedit ./man.txt";
+    system "gedit ./man.md";
 }
 
 # Check if Item Exists
@@ -316,10 +338,32 @@ sub h_t_t{
     return;
 }
 
-# Meash
-sub meash_{
-    my ($_tree_1, $_tree_2) = @_;
-    
+# Mash
+sub compare_value_list{
+    my ($_value, $_list) = @_;
+    foreach (@$_list){
+        if ($_value eq $_){ return $_; }
+    }
+    return "";
+}
+
+sub compare_list_list{
+    my ($_list_0, $_list_1) = @_;
+    my @_result;
+    foreach (@$_list_0){
+        push @_result, compare_value_list($_, $_list_1);
+    }
+    return @_result;
+}
+
+sub compare_trees{
+    my ($_tree_0, $_tree_1) = @_;
+    my @keys_0 = nested_hash_read(%$_tree_0);
+    my @keys_1 = nested_hash_read(%$_tree_1);
+    my @shared_con = compare_list_list(@keys_0, @keys_1);
+    print Dumper @shared_con;
+    return;
+}
 
 # Menu Maker
 sub mk_menu {
@@ -407,6 +451,11 @@ sub mk_menu {
         -underline => 1,
         -command => sub { add_figure_path() },
     );
+    $widgets->add_command(
+        -label => "Mash",
+        -underline => 2,
+        -command => sub { mash_menu($main) },
+    );
     $menu->add_cascade(
         -label => "Show",
         -underline => 0,
@@ -415,7 +464,7 @@ sub mk_menu {
     $show->add_command(
         -label => "Show Figure",
         -underline => 0,
-        -command => sub { show_fig($figure_path) },
+        -command => sub { figure_menu($main, $figure_path); },
     );
     $menu->add_cascade(
         -label => "Help",
@@ -445,12 +494,12 @@ sub mk_menu {
 }
 
 sub main{
-    $label->g_pack();
-    $label->g_raise();
+    my ($main) = @_;
+    show_fig_bind($main, $figure_path);
     $tree->tag_bind("ttk", "<Alt-1>", sub{ show_def() });
-    #$tree->bind("<Tab-1>", sub{ show_fig($figure_path) });
+    #$tree->g_bind("<Tab-1>", sub{ show_fig($figure_path) });
     $tree->g_pack(-expand => 1, -fill => 'both');
     Tkx::MainLoop();
 }
 
-main();
+main($main);
