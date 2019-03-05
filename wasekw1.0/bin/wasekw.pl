@@ -67,6 +67,11 @@ $main->g_wm_iconphoto($img);
 # Create Tree
 my $tree = $main->new_ttk__treeview;
 
+# Browse Subroutine
+sub browse{
+    return Tkx::tk___getOpenFile(-parent => $main);
+}
+
 # Figure Label
 sub figure_menu{
     my ($main, $figure_path) = @_;
@@ -81,12 +86,21 @@ sub figure_menu{
 # Mash Menu
 sub mash_menu{
     my ($main) = @_;
+    my $path0;
+    my $path1;
     my $mash = $main->new_toplevel;
     $mash->g_wm_title("WKW Mash");
     $mash->g_wm_geometry("400x200+450+457");
     $mash->g_wm_iconphoto($img);
-    my $frm = $mash->new_ttk__frame();
-    my $brs0 = $frm->new_ttk__button(-text => "browse T_1", -command => sub {});
+    my $label = $mash->new_ttk__frame();
+    my $brs0 = $label->new_ttk__button(-text => "Browse Tree 0", -command => sub { $path0 = browse });
+    my $brs1 = $label->new_ttk__button(-text => "Browse Tree 1", -command => sub { $path1 = browse });
+    my $tree0_path = $label->new_ttk__entry(-textvariable => $path0);
+    $label->g_pack();
+    $label->g_raise();
+    $brs0->g_pack();
+    $brs1->g_pack();
+    $tree0_path->g_pack();
 }
 
 # Setting Columns
@@ -304,10 +318,11 @@ sub item_check{
 # Save Tree
 sub save_tree{
     my ($_filename) = @_;
+    my $path = "~/SRC/Waseku/wasekw1.0/temp/";
     my @name = split(/\//, $_filename);
     my @name_i = split(/\./, pop @name);
     my %new_hash = hash_creator($_filename);
-    open my $fh, ">", $name_i[0]."\.json";
+    open my $fh, ">", $path.$name_i[0]."\.json";
     print $fh encode_json(\%new_hash);
     close $fh;
     return;
