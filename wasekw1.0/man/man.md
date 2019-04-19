@@ -1,10 +1,10 @@
-#! WASEKU 1.0 - Manual 
+% WASEKU 1.0 
 
 # Introduction
 
 waseku is an interactive tool for ontogenic-like trees construction 
-from hierarchical *csv and *txt files. It was programmed in Perl 5
-using Tkx::tk___treeview and hash tables as building engines for the trees 
+from hierarchical *csv* and *txt* files. It was programmed in Perl 5
+using [tcl-tk](https://www.tcl.tk/man/tcl/TkCmd/ttk_treeview.htm#M27) **Tkx::tk___treeview** and hash tables as building engines for the trees 
 set up. 
 
 # Getting Started
@@ -37,11 +37,11 @@ then run
 
 The hierarchical structure of the in-files is stablished by tabs,
 resulting in a tree-like desing contained in a grided frame (text file).
-For wasekw work properly no tab or spaces has to exist after
+For *wasekw* work properly no tab or spaces has to exist after
 the text (node) is writen down.
 
 
-%Example 1
+**Example 1**
 ```text_editor
 root_0
 	child_1
@@ -56,9 +56,8 @@ root_0
         .
         child_N
 ```
-%end Example 1
 
-once you ended, save the file as 'filename.csv' choosing ´tab´ as
+once you ended, save the file as 'filename.csv' choosing *tab* as
 field separator.
 
 ## Introducing the definitions
@@ -81,12 +80,12 @@ Definition N
 ##
 ```
 
-where '##' represent two numerals.
+where ## represent two numerals.
 
 ### Add definitions
 
 Once you have your definitions file ready, go to the 
-"widgets" menu at waswkw main menu bar, select "Add Definitions"
+"widgets" menu at *wasekw* main menu bar, select "Add Definitions"
 and choose your definitions file.
 
 ### Viewing the definitions
@@ -101,8 +100,8 @@ A popup message have to appear.
 The figure folder must contain all the figures related to the tree,
 named same as the node appear on the tree.
 
-%Example 2
-```
+**Example 2**
+```text_editor
 node0		------> node0.*png,*jpg,*gif
 	node1   ------> node1.*png,*jpg,*gif
 	node2   ------> node2.*png,*jpg,*gif
@@ -111,7 +110,6 @@ node0		------> node0.*png,*jpg,*gif
 	.
 	nodeN   ------> nodeN.*png,*jpg,*gif
 ```
-%end Example 2
 
 ### Add figures path
 

@@ -305,7 +305,7 @@ sub about{
 
 # Manual Button
 sub manual{
-    system "gedit ./man.md";
+    system "gedit ./man/man.md";
 }
 
 # Check if Item Exists
@@ -318,13 +318,17 @@ sub item_check{
 # Save Tree
 sub save_tree{
     my ($_filename) = @_;
-    my $path = "~/SRC/Waseku/wasekw1.0/temp/";
+    #my $tmp = "tmp";
+    #unless (mkdir $tmp) { die "$tmp directory cannot be created"; }
+    my $path = "./tmp/";
     my @name = split(/\//, $_filename);
     my @name_i = split(/\./, pop @name);
     my %new_hash = hash_creator($_filename);
-    open my $fh, ">", $path.$name_i[0]."\.json";
+    opendir (my $dh, $path);
+    open my $fh, '>', $path.$name_i[0]."\.json";
     print $fh encode_json(\%new_hash);
     close $fh;
+    closedir $dh;
     return;
 }
 
