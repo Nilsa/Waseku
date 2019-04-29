@@ -1,8 +1,8 @@
-#! C:/Perl64/
+#! C:/Perl64/lib/
 
 ###############################################################################
 #                                                                             #
-#    wasekw1.0 is an interactive tool for ontogenic_like trees construction   #
+#    wasekw1.0 is an interactive tool for ontogenic trees construction        #
 #    from hierarchical *csv and *txt files. It was programmed in Perl 5       #
 #    using Tkx::tk___treeview and hash tables as building engines for the     #
 #    trees set up.                                                            #
@@ -60,9 +60,9 @@ $main->configure(-menu => mk_menu($main));
 $main->g_wm_title("WASEKW 1.0");
 
 # Setting Icon
-Tkx::package_require("Img");
-my $img = Tkx::image_create_photo(-file => 'logo.png');
-$main->g_wm_iconphoto($img);
+#Tkx::package_require("Img");
+#my $img = Tkx::image_create_photo(-file => 'logo.png');
+#$main->g_wm_iconphoto($img);
 
 # Create Tree
 my $tree = $main->new_ttk__treeview;
@@ -79,7 +79,7 @@ sub figure_menu{
     $figure->g_wm_title("WkW Picture");
     $figure->g_wm_geometry("250x300+450+125");
     #$figure->g_wm_resizable(1,1);
-    $figure->g_wm_iconphoto($img);
+    #$figure->g_wm_iconphoto($img);
     show_fig($figure, $figure_path);
 }
 
@@ -91,7 +91,7 @@ sub mash_menu{
     my $mash = $main->new_toplevel;
     $mash->g_wm_title("WKW Mash");
     $mash->g_wm_geometry("400x200+450+457");
-    $mash->g_wm_iconphoto($img);
+    #$mash->g_wm_iconphoto($img);
     my $label = $mash->new_ttk__frame();
     my $brs0 = $label->new_ttk__button(-text => "Browse Tree 0", -command => sub { $path0 = browse });
     my $brs1 = $label->new_ttk__button(-text => "Browse Tree 1", -command => sub { $path1 = browse });
@@ -281,7 +281,7 @@ sub show_fig{
         my $id = $tree->selection();
         my $name = search_fig($path_dir, $id);
         #if ( $name eq "" ) { error_fig_not_found($id); }
-        my $photo = Tkx::image_create_photo(-file => "$path_dir"."/$name");
+        my $photo = Tkx::image_create_photo(-file => "$path_dir"."$name");
         $label->configure(-image => $photo);
     }
     $label->g_pack();
