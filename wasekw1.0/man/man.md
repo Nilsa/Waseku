@@ -2,7 +2,7 @@
 
 # Introduction
 
-waseku is an interactive tool for ontogenies development based on discipline knowledge. Ontogenies are presented in a treeview cascade format constructed using hierarchical *csv* files where each concept represent an entity (or node)  and *txt* files where the entities properties are stored. The hierarchy in the *csv* file is stablished by **tabs**, also used as field separators.
+waseku is an interactive tool for ontogenies development based on discipline knowledge. Ontogenies are presented in a treeview cascade format constructed using hierarchical *csv* files where each concept represent an entity (or node) and *txt* files where the entities properties are stored. The hierarchy in the *csv* file is stablished by **tabs**, also used as field separators.
 
 It was programmed in Perl 5 using [tcl-tk](https://www.tcl.tk/man/tcl/TkCmd/ttk_treeview.htm#M27) **Tkx::tk___treeview** and hash tables as building engines for the trees set up. 
 
@@ -57,7 +57,7 @@ once you ended, save the file as 'filename.csv' choosing *tab* as field separato
 
 ## Introducing the definitions
 
-### The definitions *txt file
+### The definitions *txt* file
 
 The file must be constructed as follows
 
@@ -75,7 +75,7 @@ definition N-1
 ##
 ```
 
-where ## represent two numerals.
+
 
 ### Add definitions
 

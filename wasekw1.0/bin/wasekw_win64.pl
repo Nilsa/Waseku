@@ -167,8 +167,7 @@ sub tree_cleaner{
 
 # Insert Definitions
 sub list_converter{
-    my ($_filename) = @_;
-    open PFILE, '<', $_filename;
+    open PFILE, '<', $_;
     local $/ = '##';
     my @paragraph;
     while (<PFILE>){
@@ -181,8 +180,7 @@ sub list_converter{
 }
 
 sub get_value{
-    my ($_id) = @_;
-    my $value = $tree->item($_id, -value);
+    my $value = $tree->item($_, -value);
     return $value;
 }
 
@@ -216,9 +214,8 @@ sub insert_def{
 }
 
 sub nested_hash_read{
-    my ($_nested_hash) = @_;
     my @key_list;
-    foreach my $key (keys %$_nested_hash){
+    foreach my $key (keys %$_){
         push @keyring_, $key;
         if (ref($_nested_hash->{$key}) eq 'HASH'){
             nested_hash_read($_nested_hash->{$key});
@@ -248,8 +245,7 @@ sub add_figure_path{
 }
 
 sub error_fig_not_found{
-    my ($_name) = @_;
-    Tkx::tk___messageBox(-message => "$_name figure doesn't found", -title => "WkW Error", -icon => "error");
+    Tkx::tk___messageBox(-message => "$_ figure doesn't found", -title => "WkW Error", -icon => "error");
     return;
 }
 
@@ -266,8 +262,7 @@ sub search_fig{
 }
 
 sub error_path_fig{
-    my ($path_dir) = @_;
-    if ($path_dir eq ""){
+    if ($_ eq ""){
         Tkx::tk___messageBox(-message => "You didn't set the figure's path", -title => "WkW Error", -icon => "error");
         return 0;
     }
@@ -305,23 +300,21 @@ sub about{
 
 # Manual Button
 sub manual{
-    system "gedit ./man.md";
+    system "adobe ./man.md";
 }
 
 # Check if Item Exists
 sub item_check{
-    my ($_item_name) = @_;
-    my $item = $tree->exist($_item_name);
+    my $item = $tree->exist($_);
     print $item."\n"; 
 }
 
 # Save Tree
 sub save_tree{
-    my ($_filename) = @_;
-    my $path = "~/SRC/Waseku/wasekw1.0/temp/";
-    my @name = split(/\//, $_filename);
+    my $path = "~\SRC\Waseku\wasekw1.0\temp\";
+    my @name = split(/\//, $_);
     my @name_i = split(/\./, pop @name);
-    my %new_hash = hash_creator($_filename);
+    my %new_hash = hash_creator($_);
     open my $fh, ">", $path.$name_i[0]."\.json";
     print $fh encode_json(\%new_hash);
     close $fh;
@@ -330,8 +323,7 @@ sub save_tree{
 
 # Open Saved JSON Tree
 sub open_tree{
-    my ($_json_file) = @_;
-    open my $PFILE, "<", $_json_file;
+    open my $PFILE, "<", $_;
     my $json = <$PFILE>;
     my $data = decode_json($json);
     close $PFILE;
@@ -340,8 +332,7 @@ sub open_tree{
 
 # Insert Hash to Tree
 sub hash_to_tree{
-    my ($_hash) = @_;
-    tree_printer(\%$_hash, "", 0);
+    tree_printer(\%$_, "", 0);
     return;
 }
 
