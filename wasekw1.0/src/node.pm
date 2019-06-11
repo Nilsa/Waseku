@@ -1,6 +1,6 @@
 #!usr/bin/env perl
 
-package Node;
+package node;
 
 sub new {
     my $class = shift;
@@ -62,4 +62,9 @@ sub create_root {
 }
 
 sub destroy_node {
-    
+    my ( $self ) = @_;
+    $self->{_name} = undef;
+    $self->{_def} = undef;
+    $self->{_path_to_fig} = undef;
+    return $self;
+}
